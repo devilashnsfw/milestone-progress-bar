@@ -2,29 +2,50 @@ async function fetchMilestoneProgress() {
     const queryParams = new URLSearchParams(window.location.search);
     const user = queryParams.get("user");
     const repo = queryParams.get("repo");
-    const milestone = queryParams.get("milestone");
+    const milestoneTitle = queryParams.get("milestone");
 
     const progressFill = document.querySelector(".progress-fill");
     const progressInfo = document.querySelector(".progress-info");
-    const milestoneTitle = document.querySelector("#milestone-title");
+    const milestoneElement = document.querySelector("#milestone-title");
 
-    if (!user || !repo || !milestone) {
+    if (!user || !repo || !milestoneTitle) {
         progressInfo.textContent = "Invalid URL parameters.";
         progressInfo.classList.add("error");
         return;
     }
 
     try {
-        // Fetch issues associated with the milestone
-        const issuesUrl = `https://api.github.com/repos/${user}/${repo}/issues?milestone=${milestone}&state=all`;
-        const response = await fetch(issuesUrl);
+        // Fetch milestones to get the milestone number
+        const milestonesUrl = `https://api.github.com/repos/${user}/${repo}/milestones`;
+        const milestonesResponse = await fetch(milestonesUrl);
 
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
+        if (!milestonesResponse.ok) {
+            throw new Error(`HTTP Error: ${milestonesResponse.status}`);
         }
 
-        const issues = await response.json();
-        console.log("Issues response:", issues);
+        const milestones = await milestonesResponse.json();
+        const selectedMilestone = milestones.find(m => m.title === milestoneTitle);
+
+        if (!selectedMilestone) {
+            progressInfo.textContent = "Milestone not found.";
+            progressInfo.classList.add("error");
+            return;
+        }
+
+        // Set the milestone title dynamically
+        milestoneElement.textContent = selectedMilestone.title;
+
+        const milestoneNumber = selectedMilestone.number;
+
+        // Fetch issues for the selected milestone
+        const issuesUrl = `https://api.github.com/repos/${user}/${repo}/issues?milestone=${milestoneNumber}&state=all`;
+        const issuesResponse = await fetch(issuesUrl);
+
+        if (!issuesResponse.ok) {
+            throw new Error(`HTTP Error: ${issuesResponse.status}`);
+        }
+
+        const issues = await issuesResponse.json();
 
         // Group issues by tag
         const tagCounts = {};
@@ -45,32 +66,29 @@ async function fetchMilestoneProgress() {
             return;
         }
 
-        // Set milestone title dynamically
-        milestoneTitle.textContent = milestone;
-
         // Calculate total issues
         const totalIssues = issues.length;
 
-        // Determine the colors for tags
+        // Generate tag colors dynamically
         const tagColors = generateTagColors(Object.keys(tagCounts).length);
 
         let currentWidth = 0;
         Object.keys(tagCounts).forEach((tag, index) => {
             const tagCount = tagCounts[tag];
             const tagPercentage = (tagCount / totalIssues) * 100;
-            const tagWidth = (tagPercentage / 100) * 100;
-            
+            const tagWidth = `${tagPercentage}%`;
+
             const tagColor = tagColors[index];
 
             const tagElement = document.createElement("div");
             tagElement.style.backgroundColor = tagColor;
-            tagElement.style.width = `${tagWidth}%`;
+            tagElement.style.width = tagWidth;
             tagElement.style.height = "100%";
             tagElement.title = `${tag}: ${tagCount} issues`;
 
             progressFill.appendChild(tagElement);
 
-            currentWidth += tagWidth;
+            currentWidth += tagPercentage;
         });
 
         progressInfo.textContent = `${Math.round(currentWidth)}% Complete (${totalIssues} Issues)`;
