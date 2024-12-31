@@ -83,7 +83,6 @@ async function fetchMilestoneProgress() {
             const tagElement = document.createElement("div");
             tagElement.style.backgroundColor = tagColor;
             tagElement.style.width = tagWidth;
-            tagElement.style.height = "100%";
             tagElement.title = `${tag}: ${tagCount} issues`;
 
             progressFill.appendChild(tagElement);
@@ -91,7 +90,7 @@ async function fetchMilestoneProgress() {
             currentWidth += tagPercentage;
         });
 
-        progressInfo.textContent = `${Math.round(currentWidth)}% Complete (${totalIssues} Issues)`;
+        progressInfo.textContent = `${Math.round((totalIssues - issues.length) / totalIssues * 100)}% Complete (${issues.length}/${totalIssues} Issues)`;
     } catch (error) {
         console.error("Error fetching milestone data:", error);
         progressInfo.textContent = "Error loading progress.";
@@ -102,8 +101,7 @@ async function fetchMilestoneProgress() {
 function generateTagColors(numTags) {
     // Generate a list of colors dynamically for each tag
     const baseColors = [
-        "#4caf50", "#2196f3", "#ff9800", "#ff5722", "#9e9e9e", 
-        "#673ab7", "#ffeb3b", "#00bcd4", "#9c27b0", "#607d8b"
+        "#c57b7b", "#f3c396", "#b3c7a3", "#d6d6d6"
     ];
 
     const colors = [];
