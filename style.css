@@ -25,6 +25,8 @@ h1 {
     font-size: 20px;
     font-weight: 600;
     color: #333;
+    text-align: left;  /* Left-align the title */
+    margin-bottom: 10px;
 }
 
 .progress-bar {
@@ -38,7 +40,6 @@ h1 {
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(to right, #4caf50, #2196f3, #ff9800);
     transition: width 0.5s ease-in-out;
 }
 

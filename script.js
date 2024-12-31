@@ -46,6 +46,19 @@ async function fetchMilestoneProgress() {
             ? Math.round((closed_issues / totalIssues) * 100)
             : 100;  // Default to 100% if no issues exist
 
+        // Apply solid color based on progress percentage
+        if (progressPercentage === 100) {
+            progressFill.style.backgroundColor = "#4caf50";  // Green for 100%
+        } else if (progressPercentage >= 75) {
+            progressFill.style.backgroundColor = "#2196f3";  // Blue for 75%+
+        } else if (progressPercentage >= 50) {
+            progressFill.style.backgroundColor = "#ff9800";  // Orange for 50%+
+        } else if (progressPercentage >= 25) {
+            progressFill.style.backgroundColor = "#ff5722";  // Red-Orange for 25%+
+        } else {
+            progressFill.style.backgroundColor = "#9e9e9e";  // Grey for low progress
+        }
+
         progressFill.style.width = `${progressPercentage}%`;
         progressInfo.textContent = `${progressPercentage}% Complete (${closed_issues}/${totalIssues} Issues)`;
     } catch (error) {
