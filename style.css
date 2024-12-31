@@ -12,38 +12,5 @@ body {
     background-color: #eaeaea;
     border-radius: 8px;
     padding: 16px;
-    width: 600px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-#milestone-title {
-    font-size: 16px;
-    font-weight: bold;
-    text-align: left;
-}
-
-#progress-info {
-    font-size: 14px;
-    font-weight: bold;
-    text-align: right;
-}
-
-.progress-bar {
-    background-color: #d6d6d6;
-    height: 16px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    display: flex;
-    height: 100%;
-    border-radius: 8px;
 }

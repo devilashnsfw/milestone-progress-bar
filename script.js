@@ -4,12 +4,8 @@ async function fetchMilestoneProgress() {
     const repo = queryParams.get("repo");
     const milestoneTitle = queryParams.get("milestone");
 
-    const milestoneElement = document.getElementById("milestone-title");
-    const progressInfo = document.getElementById("progress-info");
-    const progressFill = document.querySelector(".progress-fill");
-
     if (!user || !repo || !milestoneTitle) {
-        progressInfo.textContent = "Invalid URL parameters.";
+        console.error("Invalid URL parameters.");
         return;
     }
 
@@ -26,12 +22,8 @@ async function fetchMilestoneProgress() {
         const milestone = milestones.find(m => m.title === milestoneTitle);
 
         if (!milestone) {
-            progressInfo.textContent = "Milestone not found.";
-            return;
+            throw new Error("Milestone not found.");
         }
-
-        // Set milestone title
-        milestoneElement.textContent = milestone.title;
 
         // Fetch issues data
         const milestoneNumber = milestone.number;
@@ -47,9 +39,8 @@ async function fetchMilestoneProgress() {
         const closedIssues = issues.filter(issue => issue.state === "closed");
         const openIssues = issues.filter(issue => issue.state === "open");
 
-        // Display progress info
+        // Calculate progress
         const percentageComplete = totalIssues > 0 ? Math.round((closedIssues.length / totalIssues) * 100) : 0;
-        progressInfo.textContent = `${percentageComplete}% Complete (${closedIssues.length}/${totalIssues} Issues)`;
 
         // Prepare closed issue tag data
         const tagCounts = {};
@@ -63,30 +54,62 @@ async function fetchMilestoneProgress() {
         const totalTags = Object.keys(tagCounts).length;
         const tagColors = generateTagColors(totalTags);
 
-        // Render closed issue progress by tags
-        Object.keys(tagCounts).forEach((tag, index) => {
-            const widthPercentage = (tagCounts[tag] / totalIssues) * 100;
-            const tagDiv = document.createElement("div");
-            tagDiv.style.backgroundColor = tagColors[index];
-            tagDiv.style.width = `${widthPercentage}%`;
-            progressFill.appendChild(tagDiv);
-        });
+        // Draw progress bar
+        drawProgressBar(milestone.title, percentageComplete, closedIssues.length, totalIssues, tagCounts, tagColors, openIssues.length);
 
-        // Render open issues as a grey section
-        const openPercentage = (openIssues.length / totalIssues) * 100;
-        if (openPercentage > 0) {
-            const openDiv = document.createElement("div");
-            openDiv.style.backgroundColor = "#d6d6d6"; // Grey color for open issues
-            openDiv.style.width = `${openPercentage}%`;
-            progressFill.appendChild(openDiv);
-        }
     } catch (error) {
         console.error("Error fetching milestone data:", error);
-        progressInfo.textContent = "Error loading progress.";
     }
 }
 
-// Generate colors for tags
+function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, tagColors, openCount) {
+    const canvas = document.getElementById("progressCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const barWidth = width - 40;
+    const barHeight = 16;
+    const barX = 20;
+    const barY = height / 2 - barHeight / 2;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw background
+    ctx.fillStyle = "#eaeaea";
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw title
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "left";
+    ctx.fillText(title, barX, barY - 10);
+
+    // Draw progress info
+    const infoText = `${percentage}% Complete (${closedCount}/${totalCount} Issues)`;
+    ctx.textAlign = "right";
+    ctx.fillText(infoText, width - 20, barY - 10);
+
+    // Draw progress bar background
+    ctx.fillStyle = "#d6d6d6";
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+
+    // Draw progress by tags
+    let currentX = barX;
+    Object.keys(tagCounts).forEach((tag, index) => {
+        const widthPercentage = (tagCounts[tag] / totalCount) * barWidth;
+        ctx.fillStyle = tagColors[index];
+        ctx.fillRect(currentX, barY, widthPercentage, barHeight);
+        currentX += widthPercentage;
+    });
+
+    // Draw open issues as grey
+    const openWidth = (openCount / totalCount) * barWidth;
+    ctx.fillStyle = "#d6d6d6";
+    ctx.fillRect(currentX, barY, openWidth, barHeight);
+}
+
 function generateTagColors(count) {
     const baseColors = [
         "#E57373", "#FFB74D", "#81C784", "#64B5F6", "#9575CD",
@@ -99,4 +122,16 @@ function generateTagColors(count) {
     return colors;
 }
 
-fetchMilestoneProgress();
+// Convert canvas to image URL
+function convertCanvasToImage() {
+    const canvas = document.getElementById("progressCanvas");
+    return canvas.toDataURL("image/png");
+}
+
+// Example of embedding as an image
+fetchMilestoneProgress().then(() => {
+    const img = document.createElement("img");
+    img.src = convertCanvasToImage();
+    img.alt = "Milestone Progress";
+    document.body.appendChild(img);
+});
