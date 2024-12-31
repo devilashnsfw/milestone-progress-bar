@@ -63,7 +63,7 @@ async function fetchMilestoneProgress() {
 }
 
 function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, tagColors, openCount) {
-    const progressContainer = document.getElementById("progressContainer");
+    const canvasContainer = document.getElementById("progressContainer");
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
 
