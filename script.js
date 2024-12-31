@@ -6,6 +6,7 @@ async function fetchMilestoneProgress() {
 
     const progressFill = document.querySelector(".progress-fill");
     const progressInfo = document.querySelector(".progress-info");
+    const milestoneTitle = document.querySelector("#milestone-title");
 
     if (!user || !repo || !milestone) {
         progressInfo.textContent = "Invalid URL parameters.";
@@ -34,6 +35,9 @@ async function fetchMilestoneProgress() {
             progressInfo.classList.add("error");
             return;
         }
+
+        // Set milestone title dynamically
+        milestoneTitle.textContent = selectedMilestone.title;
 
         const { open_issues, closed_issues } = selectedMilestone;
         const totalIssues = open_issues + closed_issues;
