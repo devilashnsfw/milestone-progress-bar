@@ -82,12 +82,13 @@ function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, 
     ctx.fillRect(0, 0, width, height);
 
     // Draw title
-    ctx.font = "16px Arial";
+    ctx.font = "bold 16px Arial";
     ctx.fillStyle = "#000";
     ctx.textAlign = "left";
     ctx.fillText(title, barX, barY - 10);
 
     // Draw progress info
+    ctx.font = "16px Arial";
     const infoText = `${percentage}% Complete (${closedCount}/${totalCount} Issues)`;
     ctx.textAlign = "right";
     ctx.fillText(infoText, width - 20, barY - 10);
