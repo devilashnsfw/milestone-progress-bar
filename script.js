@@ -63,6 +63,7 @@ async function fetchMilestoneProgress() {
 }
 
 function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, tagColors, openCount) {
+    const progressContainer = document.getElementById("progressContainer");
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -108,6 +109,8 @@ function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, 
     const openWidth = (openCount / totalCount) * barWidth;
     ctx.fillStyle = "#d6d6d6";
     ctx.fillRect(currentX, barY, openWidth, barHeight);
+
+    canvasContainer.style.display = "none";
 }
 
 function generateTagColors(count) {
@@ -133,5 +136,6 @@ fetchMilestoneProgress().then(() => {
     const img = document.createElement("img");
     img.src = convertCanvasToImage();
     img.alt = "Milestone Progress";
+    img.style.borderRadius = "5px";
     document.body.appendChild(img);
 });
