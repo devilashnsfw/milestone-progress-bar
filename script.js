@@ -9,19 +9,29 @@ async function fetchMilestoneProgress() {
 
     if (!user || !repo || !milestone) {
         progressInfo.textContent = "Invalid URL parameters.";
+        progressInfo.classList.add("error");
         return;
     }
 
     try {
         // Fetch milestones
         const milestonesUrl = `https://api.github.com/repos/${user}/${repo}/milestones`;
+        console.log("Fetching milestones from:", milestonesUrl);
+
         const response = await fetch(milestonesUrl);
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
         const milestones = await response.json();
+        console.log("Milestones response:", milestones);
 
         const selectedMilestone = milestones.find(m => m.title === milestone);
 
         if (!selectedMilestone) {
             progressInfo.textContent = "Milestone not found.";
+            progressInfo.classList.add("error");
             return;
         }
 
@@ -30,13 +40,14 @@ async function fetchMilestoneProgress() {
 
         const progressPercentage = totalIssues
             ? Math.round((closed_issues / totalIssues) * 100)
-            : 0;
+            : 100;  // Default to 100% if no issues exist
 
         progressFill.style.width = `${progressPercentage}%`;
         progressInfo.textContent = `${progressPercentage}% Complete (${closed_issues}/${totalIssues} Issues)`;
     } catch (error) {
         console.error("Error fetching milestone data:", error);
         progressInfo.textContent = "Error loading progress.";
+        progressInfo.classList.add("error");
     }
 }
 
