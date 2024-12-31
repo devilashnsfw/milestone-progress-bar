@@ -15,57 +15,84 @@ async function fetchMilestoneProgress() {
     }
 
     try {
-        // Fetch milestones
-        const milestonesUrl = `https://api.github.com/repos/${user}/${repo}/milestones`;
-        console.log("Fetching milestones from:", milestonesUrl);
-
-        const response = await fetch(milestonesUrl);
+        // Fetch issues associated with the milestone
+        const issuesUrl = `https://api.github.com/repos/${user}/${repo}/issues?milestone=${milestone}&state=all`;
+        const response = await fetch(issuesUrl);
 
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }
 
-        const milestones = await response.json();
-        console.log("Milestones response:", milestones);
+        const issues = await response.json();
+        console.log("Issues response:", issues);
 
-        const selectedMilestone = milestones.find(m => m.title === milestone);
+        // Group issues by tag
+        const tagCounts = {};
+        issues.forEach(issue => {
+            const labels = issue.labels;
+            labels.forEach(label => {
+                const tag = label.name;
+                if (!tagCounts[tag]) {
+                    tagCounts[tag] = 0;
+                }
+                tagCounts[tag]++;
+            });
+        });
 
-        if (!selectedMilestone) {
-            progressInfo.textContent = "Milestone not found.";
+        if (Object.keys(tagCounts).length === 0) {
+            progressInfo.textContent = "No tagged issues found.";
             progressInfo.classList.add("error");
             return;
         }
 
         // Set milestone title dynamically
-        milestoneTitle.textContent = selectedMilestone.title;
+        milestoneTitle.textContent = milestone;
 
-        const { open_issues, closed_issues } = selectedMilestone;
-        const totalIssues = open_issues + closed_issues;
+        // Calculate total issues
+        const totalIssues = issues.length;
 
-        const progressPercentage = totalIssues
-            ? Math.round((closed_issues / totalIssues) * 100)
-            : 100;  // Default to 100% if no issues exist
+        // Determine the colors for tags
+        const tagColors = generateTagColors(Object.keys(tagCounts).length);
 
-        // Apply solid color based on progress percentage
-        if (progressPercentage === 100) {
-            progressFill.style.backgroundColor = "#4caf50";  // Green for 100%
-        } else if (progressPercentage >= 75) {
-            progressFill.style.backgroundColor = "#2196f3";  // Blue for 75%+
-        } else if (progressPercentage >= 50) {
-            progressFill.style.backgroundColor = "#ff9800";  // Orange for 50%+
-        } else if (progressPercentage >= 25) {
-            progressFill.style.backgroundColor = "#ff5722";  // Red-Orange for 25%+
-        } else {
-            progressFill.style.backgroundColor = "#9e9e9e";  // Grey for low progress
-        }
+        let currentWidth = 0;
+        Object.keys(tagCounts).forEach((tag, index) => {
+            const tagCount = tagCounts[tag];
+            const tagPercentage = (tagCount / totalIssues) * 100;
+            const tagWidth = (tagPercentage / 100) * 100;
+            
+            const tagColor = tagColors[index];
 
-        progressFill.style.width = `${progressPercentage}%`;
-        progressInfo.textContent = `${progressPercentage}% Complete (${closed_issues}/${totalIssues} Issues)`;
+            const tagElement = document.createElement("div");
+            tagElement.style.backgroundColor = tagColor;
+            tagElement.style.width = `${tagWidth}%`;
+            tagElement.style.height = "100%";
+            tagElement.title = `${tag}: ${tagCount} issues`;
+
+            progressFill.appendChild(tagElement);
+
+            currentWidth += tagWidth;
+        });
+
+        progressInfo.textContent = `${Math.round(currentWidth)}% Complete (${totalIssues} Issues)`;
     } catch (error) {
         console.error("Error fetching milestone data:", error);
         progressInfo.textContent = "Error loading progress.";
         progressInfo.classList.add("error");
     }
+}
+
+function generateTagColors(numTags) {
+    // Generate a list of colors dynamically for each tag
+    const baseColors = [
+        "#4caf50", "#2196f3", "#ff9800", "#ff5722", "#9e9e9e", 
+        "#673ab7", "#ffeb3b", "#00bcd4", "#9c27b0", "#607d8b"
+    ];
+
+    const colors = [];
+    for (let i = 0; i < numTags; i++) {
+        colors.push(baseColors[i % baseColors.length]); // Repeat colors if more tags than base colors
+    }
+    return colors;
 }
 
 document.addEventListener("DOMContentLoaded", fetchMilestoneProgress);

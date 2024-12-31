@@ -25,7 +25,7 @@ h1 {
     font-size: 20px;
     font-weight: 600;
     color: #333;
-    text-align: left;  /* Left-align the title */
+    text-align: left;
     margin-bottom: 10px;
 }
 
@@ -36,11 +36,14 @@ h1 {
     height: 30px;
     width: 100%;
     margin: 20px 0;
+    display: flex;
 }
 
 .progress-fill {
     height: 100%;
     transition: width 0.5s ease-in-out;
+    display: flex;
+    flex-direction: row;
 }
 
 .progress-info {
