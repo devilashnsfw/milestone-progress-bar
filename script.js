@@ -111,7 +111,47 @@ function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, 
     ctx.fillStyle = "#d6d6d6";
     ctx.fillRect(currentX, barY, openWidth, barHeight);
 
-    canvasContainer.style.display = "none";
+    // Render individual tag progress bars
+    renderTagProgress(tagCounts, tagColors, totalCount);
+}
+
+function renderTagProgress(tagCounts, tagColors, totalCount) {
+    const container = document.getElementById("progressContainer");
+
+    // Remove old tag rows
+    const oldTagRows = document.querySelectorAll(".tag-row");
+    oldTagRows.forEach(row => row.remove());
+
+    Object.keys(tagCounts).forEach((tag, index) => {
+        const tagRow = document.createElement("div");
+        tagRow.className = "tag-row";
+        tagRow.style.display = "flex";
+        tagRow.style.alignItems = "center";
+        tagRow.style.marginTop = "8px";
+
+        const tagLabel = document.createElement("span");
+        tagLabel.textContent = `${tag}: `;
+        tagLabel.style.flex = "1";
+        tagLabel.style.fontSize = "14px";
+        tagLabel.style.color = "#444";
+
+        const tagBarContainer = document.createElement("div");
+        tagBarContainer.style.flex = "3";
+        tagBarContainer.style.height = "10px";
+        tagBarContainer.style.backgroundColor = "#d6d6d6";
+        tagBarContainer.style.borderRadius = "5px";
+        tagBarContainer.style.overflow = "hidden";
+
+        const tagBar = document.createElement("div");
+        tagBar.style.height = "100%";
+        tagBar.style.width = `${(tagCounts[tag] / totalCount) * 100}%`;
+        tagBar.style.backgroundColor = tagColors[index];
+        tagBarContainer.appendChild(tagBar);
+
+        tagRow.appendChild(tagLabel);
+        tagRow.appendChild(tagBarContainer);
+        container.appendChild(tagRow);
+    });
 }
 
 function generateTagColors(count) {
@@ -126,17 +166,5 @@ function generateTagColors(count) {
     return colors;
 }
 
-// Convert canvas to image URL
-function convertCanvasToImage() {
-    const canvas = document.getElementById("progressCanvas");
-    return canvas.toDataURL("image/png");
-}
-
-// Example of embedding as an image
-fetchMilestoneProgress().then(() => {
-    const img = document.createElement("img");
-    img.src = convertCanvasToImage();
-    img.alt = "Milestone Progress";
-    img.style.borderRadius = "5px";
-    document.body.appendChild(img);
-});
+// Start fetching and rendering
+fetchMilestoneProgress();
