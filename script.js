@@ -86,6 +86,10 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     ctx.textAlign = "right";
     ctx.fillText(`${percentage}% Complete (${closedCount}/${totalCount} Issues)`, width - 20, startY);
 
+    // Draw progress bar background
+    ctx.fillStyle = "#d6d6d6";
+    ctx.fillRect(xOffset, startY, barWidth, barHeight);
+
     // Draw overall progress bar
     startY += 20;
     let xOffset = startX;
@@ -130,9 +134,13 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
         ctx.fillStyle = "#000";
         ctx.textAlign = "left";
         ctx.fillText(tag, startX, startY);
+    
+        // Tag info
+        ctx.textAlign = "right";
+        ctx.fillText(`${tagCounts[tag]} Issues)`, width - 20, startY);
 
         startY += 10;
-        ctx.fillStyle = "#d6d6d6";
+        ctx.fillStyle = `${tagColors[index]}50`;
         ctx.fillRect(startX, startY, barWidth, barHeight);
 
         const closedTagWidth = (tagClosedCounts[tag] / tagCounts[tag]) * barWidth;
