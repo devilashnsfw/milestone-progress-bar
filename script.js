@@ -80,6 +80,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     ctx.textAlign = "left";
     ctx.fillText(title, startX, startY);
 
+    // Draw progress info
     const percentage = Math.round((closedCount / totalCount) * 100);
     ctx.font = "16px Arial";
     ctx.textAlign = "right";
@@ -89,17 +90,23 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     startY += 20;
     let xOffset = startX;
     filteredTags.forEach((tag, index) => {
-        const tagCount = tagCounts[tag];
-        const closedTagCount = tagClosedCounts[tag];
-
-        const segmentWidth = (tagCount / totalCount) * barWidth;
-        const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
-
+        const widthPercentage = (tagCounts[tag] / totalCount) * barWidth;
         ctx.fillStyle = tagColors[index];
-        ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
-
-        xOffset += segmentWidth;
+        ctx.fillRect(xOffset, startY, widthPercentage, barHeight);
+        xOffset += widthPercentage;
     });
+    // filteredTags.forEach((tag, index) => {
+    //     const tagCount = tagCounts[tag];
+    //     const closedTagCount = tagClosedCounts[tag];
+
+    //     const segmentWidth = (tagCount / totalCount) * barWidth;
+    //     const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
+
+    //     ctx.fillStyle = tagColors[index];
+    //     ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
+
+    //     xOffset += segmentWidth;
+    // });
 
     // Incomplete progress
     ctx.fillStyle = "#d6d6d6";
