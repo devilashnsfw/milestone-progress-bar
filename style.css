@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
+    background-color: #282828; /*#f7f7f7;*/
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,7 +9,7 @@ body {
 }
 
 .progress-container {
-    background-color: #eaeaea;
+    background-color: #3c3836; /*#eaeaea;*/
     border-radius: 8px;
     padding: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

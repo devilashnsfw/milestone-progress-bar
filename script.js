@@ -76,7 +76,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
     // Title and overall progress
     ctx.font = "bold 16px Arial";
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = "#fbf1c7"; // "#000";
     ctx.textAlign = "left";
     ctx.fillText(title, startX, startY);
 
@@ -98,12 +98,12 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     });
 
     // Incomplete progress
-    ctx.fillStyle = "#d6d6d6";
+    ctx.fillStyle = "#928374"; // "#d6d6d6";
     ctx.fillRect(xOffset, startY, barWidth - xOffset + startX, barHeight);
 
     // Separator
     startY += 30;
-    ctx.fillStyle = "#ccc";
+    ctx.fillStyle = "#928374"; // "#ccc";
     ctx.fillRect(startX, startY, barWidth, 2);
 
     // Draw individual tag progress
@@ -112,7 +112,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
         startY += 2;
 
         ctx.font = "14px Arial";
-        ctx.fillStyle = "#000";
+        ctx.fillStyle = "#fbf1c7"; // "#000";
         ctx.textAlign = "left";
         ctx.fillText(tag, startX, startY);
     
@@ -134,6 +134,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
 function generateTagColors(count) {
     const baseColors = [
+        "#CC241D", "#458588", "#D65D0E", "#B16286", "#689D6A", "98971A",
         "#E57373", "#FFB74D", "#81C784", "#64B5F6", "#9575CD",
         "#F06292", "#4DB6AC", "#7986CB", "#FFD54F", "#4DD0E1"
     ];
