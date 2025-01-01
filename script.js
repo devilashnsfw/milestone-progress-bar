@@ -84,39 +84,20 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     const percentage = Math.round((closedCount / totalCount) * 100);
     ctx.font = "16px Arial";
     ctx.textAlign = "right";
-    ctx.fillText(`${percentage}% Complete (${closedCount}/${totalCount} Issues)`, width - 20, startY);
+    ctx.fillText(`${percentage}% Complete [${closedCount}/${totalCount}]`, width - 20, startY);
 
     startY += 20;
-    // Draw progress bar background
-    // ctx.fillStyle = "#d6d6d6";
-    // ctx.fillRect(xOffset, startY, barWidth, barHeight);
 
     // Draw overall progress bar
     let xOffset = startX;
     filteredTags.forEach((tag, index) => {
-        const segmentWidth = (tagClosedCounts[tag] / totalCount) * barWidth;
+        const segmentWidth = (tagCounts[tag] / totalCount) * barWidth;
         ctx.fillStyle = tagColors[index];
         ctx.fillRect(xOffset, startY, segmentWidth, barHeight);
         xOffset += segmentWidth;
     });
-    // filteredTags.forEach((tag, index) => {
-    //     const tagCount = tagCounts[tag];
-    //     const closedTagCount = tagClosedCounts[tag];
-
-    //     const segmentWidth = (tagCount / totalCount) * barWidth;
-    //     const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
-
-    //     ctx.fillStyle = tagColors[index];
-    //     ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
-
-    //     xOffset += segmentWidth;
-    // });
 
     // Incomplete progress
-    // Draw open issues as grey
-    // const openWidth = (openCount / totalCount) * barWidth;
-    // ctx.fillStyle = "#d6d6d6";
-    // ctx.fillRect(xOffset, startY, openWidth, barHeight);
     ctx.fillStyle = "#d6d6d6";
     ctx.fillRect(xOffset, startY, barWidth - xOffset + startX, barHeight);
 
@@ -137,7 +118,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     
         // Tag info
         ctx.textAlign = "right";
-        ctx.fillText(`${tagCounts[tag]} Issues`, width - 20, startY);
+        ctx.fillText(`[${tagClosedCounts[tag]}/${tagCounts[tag]}]`, width - 20, startY);
 
         startY += 10;
         ctx.fillStyle = `${tagColors[index]}50`;
