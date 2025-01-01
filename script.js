@@ -81,6 +81,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     ctx.fillText(title, startX, startY);
 
     const percentage = Math.round((closedCount / totalCount) * 100);
+    ctx.font = "16px Arial";
     ctx.textAlign = "right";
     ctx.fillText(`${percentage}% Complete (${closedCount}/${totalCount} Issues)`, width - 20, startY);
 
