@@ -90,15 +90,30 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
     // Draw overall progress bar
     startY += 20;
-    ctx.fillStyle = "#d6d6d6";
-    ctx.fillRect(startX, startY, barWidth, barHeight);
+    let xOffset = startX;
+    Object.keys(tagCounts).forEach((tag, index) => {
+        const tagCount = tagCounts[tag];
+        const closedTagCount = tagClosedCounts[tag];
 
-    const closedWidth = (closedCount / totalCount) * barWidth;
-    ctx.fillStyle = "#81C784";
-    ctx.fillRect(startX, startY, closedWidth, barHeight);
+        const segmentWidth = (tagCount / totalCount) * barWidth;
+        const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
+
+        ctx.fillStyle = "#d6d6d6";
+        ctx.fillRect(xOffset, startY, segmentWidth, barHeight);
+
+        ctx.fillStyle = tagColors[index];
+        ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
+
+        xOffset += segmentWidth;
+    });
+
+    // Separator line
+    startY += 30;
+    ctx.fillStyle = "#ccc";
+    ctx.fillRect(startX, startY, barWidth, 2);
 
     // Draw individual tag progress
-    startY += 40;
+    startY += 20;
     Object.keys(tagCounts).forEach((tag, index) => {
         const tagCount = tagCounts[tag];
         const closedTagCount = tagClosedCounts[tag];
@@ -111,11 +126,10 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
         // Draw tag progress bar
         startY += 10;
-        const tagBarWidth = barWidth * (tagCount / totalCount);
         ctx.fillStyle = "#d6d6d6";
-        ctx.fillRect(startX, startY, tagBarWidth, barHeight);
+        ctx.fillRect(startX, startY, barWidth, barHeight);
 
-        const closedTagWidth = (closedTagCount / tagCount) * tagBarWidth;
+        const closedTagWidth = (closedTagCount / tagCount) * barWidth;
         ctx.fillStyle = tagColors[index];
         ctx.fillRect(startX, startY, closedTagWidth, barHeight);
 
@@ -143,9 +157,7 @@ function convertCanvasToImage() {
 
 // Example of embedding as an image
 fetchMilestoneProgress().then(() => {
-    const img = document.createElement("img");
+    const img = document.getElementById("generatedImage");
     img.src = convertCanvasToImage();
-    img.alt = "Milestone Progress";
-    img.style.borderRadius = "5px";
-    document.body.appendChild(img);
+    img.style.display = "none";
 });
