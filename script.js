@@ -88,8 +88,8 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
     startY += 20;
     // Draw progress bar background
-    ctx.fillStyle = "#d6d6d6";
-    ctx.fillRect(xOffset, startY, barWidth, barHeight);
+    // ctx.fillStyle = "#d6d6d6";
+    // ctx.fillRect(xOffset, startY, barWidth, barHeight);
 
     // Draw overall progress bar
     let xOffset = startX;
