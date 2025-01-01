@@ -89,26 +89,30 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     // Draw overall progress bar
     startY += 20;
     let xOffset = startX;
-    filteredTags.forEach((tag, index) => {
-        const widthPercentage = (tagCounts[tag] / totalCount) * barWidth;
-        ctx.fillStyle = tagColors[index];
-        ctx.fillRect(xOffset, startY, widthPercentage, barHeight);
-        xOffset += widthPercentage;
-    });
     // filteredTags.forEach((tag, index) => {
-    //     const tagCount = tagCounts[tag];
-    //     const closedTagCount = tagClosedCounts[tag];
-
-    //     const segmentWidth = (tagCount / totalCount) * barWidth;
-    //     const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
-
+    //     const widthPercentage = (tagCounts[tag] / totalCount) * barWidth;
     //     ctx.fillStyle = tagColors[index];
-    //     ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
-
-    //     xOffset += segmentWidth;
+    //     ctx.fillRect(xOffset, startY, widthPercentage, barHeight);
+    //     xOffset += widthPercentage;
     // });
+    filteredTags.forEach((tag, index) => {
+        const tagCount = tagCounts[tag];
+        const closedTagCount = tagClosedCounts[tag];
+
+        const segmentWidth = (tagCount / totalCount) * barWidth;
+        const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
+
+        ctx.fillStyle = tagColors[index];
+        ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
+
+        xOffset += segmentWidth;
+    });
 
     // Incomplete progress
+    // Draw open issues as grey
+    // const openWidth = (openCount / totalCount) * barWidth;
+    // ctx.fillStyle = "#d6d6d6";
+    // ctx.fillRect(xOffset, startY, openWidth, barHeight);
     ctx.fillStyle = "#d6d6d6";
     ctx.fillRect(xOffset, startY, barWidth - xOffset + startX, barHeight);
 
