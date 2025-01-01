@@ -55,18 +55,18 @@ async function fetchMilestoneProgress() {
             });
         });
 
-        const totalTags = Object.keys(tagCounts).length;
-        const tagColors = generateTagColors(totalTags);
+        const filteredTags = Object.keys(tagCounts).filter(tag => tagCounts[tag] > 0);
+        const tagColors = generateTagColors(filteredTags.length);
 
         // Draw progress bar
-        drawProgressBar(milestone.title, closedIssues, totalIssues, tagCounts, tagClosedCounts, tagColors);
+        drawProgressBar(milestone.title, closedIssues, totalIssues, tagCounts, tagClosedCounts, filteredTags, tagColors);
 
     } catch (error) {
         console.error("Error fetching milestone data:", error);
     }
 }
 
-function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCounts, tagColors) {
+function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCounts, filteredTags, tagColors) {
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -91,21 +91,21 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     // Draw overall progress bar
     startY += 20;
     let xOffset = startX;
-    Object.keys(tagCounts).forEach((tag, index) => {
+    filteredTags.forEach((tag, index) => {
         const tagCount = tagCounts[tag];
         const closedTagCount = tagClosedCounts[tag];
 
         const segmentWidth = (tagCount / totalCount) * barWidth;
         const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
 
-        ctx.fillStyle = "#d6d6d6";
-        ctx.fillRect(xOffset, startY, segmentWidth, barHeight);
-
         ctx.fillStyle = tagColors[index];
         ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
 
         xOffset += segmentWidth;
     });
+
+    ctx.fillStyle = "#d6d6d6";
+    ctx.fillRect(xOffset, startY, barWidth - xOffset + startX, barHeight);
 
     // Separator line
     startY += 30;
@@ -114,9 +114,9 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
     // Draw individual tag progress
     startY += 20;
-    Object.keys(tagCounts).forEach((tag, index) => {
-        const tagCount = tagCounts[tag];
-        const closedTagCount = tagClosedCounts[tag];
+    filteredTags.forEach((tag, index) => {
+        // Add spacing before each tag
+        startY += 2;
 
         // Draw tag name
         ctx.font = "14px Arial";
@@ -129,7 +129,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
         ctx.fillStyle = "#d6d6d6";
         ctx.fillRect(startX, startY, barWidth, barHeight);
 
-        const closedTagWidth = (closedTagCount / tagCount) * barWidth;
+        const closedTagWidth = (tagClosedCounts[tag] / tagCounts[tag]) * barWidth;
         ctx.fillStyle = tagColors[index];
         ctx.fillRect(startX, startY, closedTagWidth, barHeight);
 
