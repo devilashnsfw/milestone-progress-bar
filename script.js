@@ -163,4 +163,15 @@ function generateTagColors(count) {
     return colors;
 }
 
-fetchMilestoneProgress();
+// Convert canvas to image URL
+function convertCanvasToImage() {
+    const canvas = document.getElementById("progressCanvas");
+    return canvas.toDataURL("image/png");
+}
+
+fetchMilestoneProgress().then(() => {
+    const img = document.getElementById("generatedImage");
+    img.src = convertCanvasToImage();
+    img.alt = "Milestone Progress";
+    img.style.borderRadius = "5px";
+});
