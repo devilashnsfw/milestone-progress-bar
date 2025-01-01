@@ -74,13 +74,12 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
     ctx.clearRect(0, 0, width, canvas.height);
 
-    // Title and overall progress
+    // Draw title and overall progress
     ctx.font = "bold 16px Arial";
     ctx.fillStyle = "#000";
     ctx.textAlign = "left";
     ctx.fillText(title, startX, startY);
 
-    // Draw progress info
     const percentage = Math.round((closedCount / totalCount) * 100);
     ctx.font = "16px Arial";
     ctx.textAlign = "right";
@@ -89,34 +88,25 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     // Draw overall progress bar
     startY += 20;
     let xOffset = startX;
+
+    // Draw segments for tags (closed issues per tag)
     filteredTags.forEach((tag, index) => {
-        const segmentWidth = (tagCounts[tag] / totalCount) * barWidth;
+        const segmentWidth = (tagCounts[tag] / totalCount) * barWidth; // Full width for this tag
+        const closedSegmentWidth = (tagClosedCounts[tag] / tagCounts[tag]) * segmentWidth; // Closed progress for this tag
+
+        // Draw closed progress in tag color
         ctx.fillStyle = tagColors[index];
-        ctx.fillRect(xOffset, startY, segmentWidth, barHeight);
+        ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
+
+        // Move xOffset forward by the full segment width
         xOffset += segmentWidth;
     });
-    // filteredTags.forEach((tag, index) => {
-    //     const tagCount = tagCounts[tag];
-    //     const closedTagCount = tagClosedCounts[tag];
 
-    //     const segmentWidth = (tagCount / totalCount) * barWidth;
-    //     const closedSegmentWidth = (closedTagCount / tagCount) * segmentWidth;
-
-    //     ctx.fillStyle = tagColors[index];
-    //     ctx.fillRect(xOffset, startY, closedSegmentWidth, barHeight);
-
-    //     xOffset += segmentWidth;
-    // });
-
-    // Incomplete progress
-    // Draw open issues as grey
-    // const openWidth = (openCount / totalCount) * barWidth;
-    // ctx.fillStyle = "#d6d6d6";
-    // ctx.fillRect(xOffset, startY, openWidth, barHeight);
+    // Draw remaining progress (open issues) in grey
     ctx.fillStyle = "#d6d6d6";
-    ctx.fillRect(xOffset, startY, barWidth - xOffset + startX, barHeight);
+    ctx.fillRect(xOffset, startY, barWidth - (xOffset - startX), barHeight);
 
-    // Separator
+    // Separator between main bar and individual tags
     startY += 30;
     ctx.fillStyle = "#ccc";
     ctx.fillRect(startX, startY, barWidth, 2);
@@ -126,12 +116,15 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     filteredTags.forEach((tag, index) => {
         startY += 2;
 
+        // Draw tag name
         ctx.font = "14px Arial";
         ctx.fillStyle = "#000";
         ctx.textAlign = "left";
         ctx.fillText(tag, startX, startY);
 
         startY += 10;
+
+        // Draw tag progress bar
         ctx.fillStyle = "#d6d6d6";
         ctx.fillRect(startX, startY, barWidth, barHeight);
 
