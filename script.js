@@ -10,7 +10,6 @@ async function fetchMilestoneProgress() {
     }
 
     try {
-        // Fetch milestone data
         const milestonesUrl = `https://api.github.com/repos/${user}/${repo}/milestones`;
         const milestonesResponse = await fetch(milestonesUrl);
 
@@ -25,7 +24,6 @@ async function fetchMilestoneProgress() {
             throw new Error("Milestone not found.");
         }
 
-        // Fetch issues data
         const milestoneNumber = milestone.number;
         const issuesUrl = `https://api.github.com/repos/${user}/${repo}/issues?milestone=${milestoneNumber}&state=all`;
         const issuesResponse = await fetch(issuesUrl);
@@ -38,7 +36,6 @@ async function fetchMilestoneProgress() {
         const totalIssues = issues.length;
         const closedIssues = issues.filter(issue => issue.state === "closed").length;
 
-        // Prepare tag data
         const tagCounts = {};
         const tagClosedCounts = {};
         issues.forEach(issue => {
@@ -58,7 +55,6 @@ async function fetchMilestoneProgress() {
         const filteredTags = Object.keys(tagCounts).filter(tag => tagCounts[tag] > 0);
         const tagColors = generateTagColors(filteredTags.length);
 
-        // Draw progress bar
         drawProgressBar(milestone.title, closedIssues, totalIssues, tagCounts, tagClosedCounts, filteredTags, tagColors);
 
     } catch (error) {
@@ -71,9 +67,9 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     const ctx = canvas.getContext("2d");
 
     const width = canvas.width;
-    const barWidth = width - 80;
+    const barWidth = width - 40;
     const barHeight = 16;
-    const startX = 40;
+    const startX = 20;
     let startY = 40;
 
     ctx.clearRect(0, 0, width, canvas.height);
@@ -86,7 +82,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
 
     const percentage = Math.round((closedCount / totalCount) * 100);
     ctx.textAlign = "right";
-    ctx.fillText(`${percentage}% Complete (${closedCount}/${totalCount} Issues)`, width - 40, startY);
+    ctx.fillText(`${percentage}% Complete (${closedCount}/${totalCount} Issues)`, width - 20, startY);
 
     // Draw overall progress bar
     startY += 20;
@@ -104,10 +100,11 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
         xOffset += segmentWidth;
     });
 
+    // Incomplete progress
     ctx.fillStyle = "#d6d6d6";
     ctx.fillRect(xOffset, startY, barWidth - xOffset + startX, barHeight);
 
-    // Separator line
+    // Separator
     startY += 30;
     ctx.fillStyle = "#ccc";
     ctx.fillRect(startX, startY, barWidth, 2);
@@ -115,16 +112,13 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     // Draw individual tag progress
     startY += 20;
     filteredTags.forEach((tag, index) => {
-        // Add spacing before each tag
         startY += 2;
 
-        // Draw tag name
         ctx.font = "14px Arial";
         ctx.fillStyle = "#000";
         ctx.textAlign = "left";
         ctx.fillText(tag, startX, startY);
 
-        // Draw tag progress bar
         startY += 10;
         ctx.fillStyle = "#d6d6d6";
         ctx.fillRect(startX, startY, barWidth, barHeight);
@@ -149,15 +143,4 @@ function generateTagColors(count) {
     return colors;
 }
 
-// Convert canvas to image URL
-function convertCanvasToImage() {
-    const canvas = document.getElementById("progressCanvas");
-    return canvas.toDataURL("image/png");
-}
-
-// Example of embedding as an image
-fetchMilestoneProgress().then(() => {
-    const img = document.getElementById("generatedImage");
-    img.src = convertCanvasToImage();
-    img.style.display = "none";
-});
+fetchMilestoneProgress();
