@@ -94,7 +94,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     // Draw overall progress bar
     let xOffset = startX;
     filteredTags.forEach((tag, index) => {
-        const segmentWidth = (tagCounts[tag] / totalCount) * barWidth;
+        const segmentWidth = (tagClosedCounts[tag] / totalCount) * barWidth;
         ctx.fillStyle = tagColors[index];
         ctx.fillRect(xOffset, startY, segmentWidth, barHeight);
         xOffset += segmentWidth;
@@ -137,7 +137,7 @@ function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCou
     
         // Tag info
         ctx.textAlign = "right";
-        ctx.fillText(`${tagCounts[tag]} Issues)`, width - 20, startY);
+        ctx.fillText(`${tagCounts[tag]} Issues`, width - 20, startY);
 
         startY += 10;
         ctx.fillStyle = `${tagColors[index]}50`;
