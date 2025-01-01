@@ -2,7 +2,7 @@ async function fetchMilestoneProgress() {
     const queryParams = new URLSearchParams(window.location.search);
     const user = queryParams.get("user");
     const repo = queryParams.get("repo");
-    const theme = queryParams.get("theme") | "gruvbox-dark";
+    const theme = queryParams.get("theme") || "gruvbox-dark";
     const milestoneTitle = queryParams.get("milestone");
 
     if (!user || !repo || !milestoneTitle) {
@@ -57,7 +57,7 @@ async function fetchMilestoneProgress() {
         const tagColors = generateTagColors(filteredTags.length, theme);
 
         document.body.style.background = getThemeColor("bg", theme);
-        drawProgressBar(milestone.title, closedIssues, totalIssues, tagCounts, tagClosedCounts, filteredTags, tagColors);
+        drawProgressBar(milestone.title, theme, closedIssues, totalIssues, tagCounts, tagClosedCounts, filteredTags, tagColors);
 
     } catch (error) {
         console.error("Error fetching milestone data:", error);
@@ -65,7 +65,7 @@ async function fetchMilestoneProgress() {
 
 }
 
-function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCounts, filteredTags, tagColors) {
+function drawProgressBar(title, theme, closedCount, totalCount, tagCounts, tagClosedCounts, filteredTags, tagColors) {
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -141,11 +141,8 @@ function generateTagColors(count, themeName="gruvbox-dark") {
         "gruvbox": ["#CC241D", "#458588", "#D65D0E", "#B16286", "#689D6A", "98971A", "d79921"],
         "nord": ["#BF616A", "#D08770", "#B48EAD", "#81A1C1", "#8FBCBB", "A3BE8C", "EBCB8B", "81A1C1"],
     }
-    const colors = [];
-    for (let i = 0; i < count; i++) {
-        colors.push(baseColors[themeName][i % baseColors[themeName].length]);
-    }
-    return colors;
+
+    return baseColors[themeName];
 }
 
 function getThemeColor(what, themeName="gruvbox-dark") {
