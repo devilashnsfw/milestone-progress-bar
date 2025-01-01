@@ -14,28 +14,3 @@ body {
     padding: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-
-.tag-row {
-    display: flex;
-    align-items: center;
-    margin-top: 8px;
-}
-
-.tag-row span {
-    font-size: 14px;
-    color: #444;
-    flex: 1;
-}
-
-.tag-row div {
-    flex: 3;
-    height: 10px;
-    background-color: #d6d6d6;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.tag-row div div {
-    height: 100%;
-    border-radius: 5px;
-}

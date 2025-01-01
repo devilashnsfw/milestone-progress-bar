@@ -36,18 +36,22 @@ async function fetchMilestoneProgress() {
 
         const issues = await issuesResponse.json();
         const totalIssues = issues.length;
-        const closedIssues = issues.filter(issue => issue.state === "closed");
-        const openIssues = issues.filter(issue => issue.state === "open");
+        const closedIssues = issues.filter(issue => issue.state === "closed").length;
 
-        // Calculate progress
-        const percentageComplete = totalIssues > 0 ? Math.round((closedIssues.length / totalIssues) * 100) : 0;
-
-        // Prepare closed issue tag data
+        // Prepare tag data
         const tagCounts = {};
-        closedIssues.forEach(issue => {
+        const tagClosedCounts = {};
+        issues.forEach(issue => {
             issue.labels.forEach(label => {
                 const tag = label.name;
-                tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                if (!tagCounts[tag]) {
+                    tagCounts[tag] = 0;
+                    tagClosedCounts[tag] = 0;
+                }
+                tagCounts[tag]++;
+                if (issue.state === "closed") {
+                    tagClosedCounts[tag]++;
+                }
             });
         });
 
@@ -55,102 +59,67 @@ async function fetchMilestoneProgress() {
         const tagColors = generateTagColors(totalTags);
 
         // Draw progress bar
-        drawProgressBar(milestone.title, percentageComplete, closedIssues.length, totalIssues, tagCounts, tagColors, openIssues.length);
+        drawProgressBar(milestone.title, closedIssues, totalIssues, tagCounts, tagClosedCounts, tagColors);
 
     } catch (error) {
         console.error("Error fetching milestone data:", error);
     }
 }
 
-function drawProgressBar(title, percentage, closedCount, totalCount, tagCounts, tagColors, openCount) {
-    const canvasContainer = document.getElementById("progressContainer");
+function drawProgressBar(title, closedCount, totalCount, tagCounts, tagClosedCounts, tagColors) {
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
 
     const width = canvas.width;
-    const height = canvas.height;
-    const barWidth = width - 40;
+    const barWidth = width - 80;
     const barHeight = 16;
-    const barX = 20;
-    const barY = height / 2 - barHeight / 2;
+    const startX = 40;
+    let startY = 40;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, canvas.height);
 
-    // Draw background
-    ctx.fillStyle = "#eaeaea";
-    ctx.fillRect(0, 0, width, height);
-
-    // Draw title
+    // Title and overall progress
     ctx.font = "bold 16px Arial";
     ctx.fillStyle = "#000";
     ctx.textAlign = "left";
-    ctx.fillText(title, barX, barY - 10);
+    ctx.fillText(title, startX, startY);
 
-    // Draw progress info
-    ctx.font = "16px Arial";
-    const infoText = `${percentage}% Complete (${closedCount}/${totalCount} Issues)`;
+    const percentage = Math.round((closedCount / totalCount) * 100);
     ctx.textAlign = "right";
-    ctx.fillText(infoText, width - 20, barY - 10);
+    ctx.fillText(`${percentage}% Complete (${closedCount}/${totalCount} Issues)`, width - 40, startY);
 
-    // Draw progress bar background
+    // Draw overall progress bar
+    startY += 20;
     ctx.fillStyle = "#d6d6d6";
-    ctx.fillRect(barX, barY, barWidth, barHeight);
+    ctx.fillRect(startX, startY, barWidth, barHeight);
 
-    // Draw progress by tags
-    let currentX = barX;
+    const closedWidth = (closedCount / totalCount) * barWidth;
+    ctx.fillStyle = "#81C784";
+    ctx.fillRect(startX, startY, closedWidth, barHeight);
+
+    // Draw individual tag progress
+    startY += 40;
     Object.keys(tagCounts).forEach((tag, index) => {
-        const widthPercentage = (tagCounts[tag] / totalCount) * barWidth;
+        const tagCount = tagCounts[tag];
+        const closedTagCount = tagClosedCounts[tag];
+
+        // Draw tag name
+        ctx.font = "14px Arial";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "left";
+        ctx.fillText(tag, startX, startY);
+
+        // Draw tag progress bar
+        startY += 10;
+        const tagBarWidth = barWidth * (tagCount / totalCount);
+        ctx.fillStyle = "#d6d6d6";
+        ctx.fillRect(startX, startY, tagBarWidth, barHeight);
+
+        const closedTagWidth = (closedTagCount / tagCount) * tagBarWidth;
         ctx.fillStyle = tagColors[index];
-        ctx.fillRect(currentX, barY, widthPercentage, barHeight);
-        currentX += widthPercentage;
-    });
+        ctx.fillRect(startX, startY, closedTagWidth, barHeight);
 
-    // Draw open issues as grey
-    const openWidth = (openCount / totalCount) * barWidth;
-    ctx.fillStyle = "#d6d6d6";
-    ctx.fillRect(currentX, barY, openWidth, barHeight);
-
-    // Render individual tag progress bars
-    renderTagProgress(tagCounts, tagColors, totalCount);
-}
-
-function renderTagProgress(tagCounts, tagColors, totalCount) {
-    const container = document.getElementById("progressContainer");
-
-    // Remove old tag rows
-    const oldTagRows = document.querySelectorAll(".tag-row");
-    oldTagRows.forEach(row => row.remove());
-
-    Object.keys(tagCounts).forEach((tag, index) => {
-        const tagRow = document.createElement("div");
-        tagRow.className = "tag-row";
-        tagRow.style.display = "flex";
-        tagRow.style.alignItems = "center";
-        tagRow.style.marginTop = "8px";
-
-        const tagLabel = document.createElement("span");
-        tagLabel.textContent = `${tag}: `;
-        tagLabel.style.flex = "1";
-        tagLabel.style.fontSize = "14px";
-        tagLabel.style.color = "#444";
-
-        const tagBarContainer = document.createElement("div");
-        tagBarContainer.style.flex = "3";
-        tagBarContainer.style.height = "10px";
-        tagBarContainer.style.backgroundColor = "#d6d6d6";
-        tagBarContainer.style.borderRadius = "5px";
-        tagBarContainer.style.overflow = "hidden";
-
-        const tagBar = document.createElement("div");
-        tagBar.style.height = "100%";
-        tagBar.style.width = `${(tagCounts[tag] / totalCount) * 100}%`;
-        tagBar.style.backgroundColor = tagColors[index];
-        tagBarContainer.appendChild(tagBar);
-
-        tagRow.appendChild(tagLabel);
-        tagRow.appendChild(tagBarContainer);
-        container.appendChild(tagRow);
+        startY += 30;
     });
 }
 
@@ -166,5 +135,17 @@ function generateTagColors(count) {
     return colors;
 }
 
-// Start fetching and rendering
-fetchMilestoneProgress();
+// Convert canvas to image URL
+function convertCanvasToImage() {
+    const canvas = document.getElementById("progressCanvas");
+    return canvas.toDataURL("image/png");
+}
+
+// Example of embedding as an image
+fetchMilestoneProgress().then(() => {
+    const img = document.createElement("img");
+    img.src = convertCanvasToImage();
+    img.alt = "Milestone Progress";
+    img.style.borderRadius = "5px";
+    document.body.appendChild(img);
+});
